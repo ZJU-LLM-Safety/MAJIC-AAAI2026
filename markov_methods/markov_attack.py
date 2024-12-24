@@ -2,8 +2,10 @@ from transformers import AutoTokenizer, AutoModelForCausalLM, pipeline
 import torch
 import json
 from tqdm import tqdm
-from judgeutils import get_jailbreak_score,judge_llama3,judge_gpt
+import sys
 import os
+sys.path.append(os.path.abspath(os.path.dirname(os.path.dirname(__file__))))
+from judgeutils import get_jailbreak_score,judge_llama3,judge_gpt
 from m1_hypo_attackLLM import hypo_method
 from m2_history_attackLLM import history_method
 from m3_space_attackLLM import space_method
@@ -17,7 +19,7 @@ from m10_emoji_attack import emoji_method
 import random
 import numpy as np
 import pandas as pd
-os.environ["CUDA_VISIBLE_DEVICES"] = "6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,2"
 from openai import OpenAI   
 
 def get_attacker_model_inference_pipeline(model_id = "meta-llama/Meta-Llama-3-8B-Instruct"):
@@ -135,7 +137,7 @@ if __name__ == '__main__':
     avg_jailbreak_score = 0.0
     index = 1
     
-    matrix = np.load("matrix.npy")
+    matrix = np.load("matrix_t.npy")
     df = pd.read_csv('methods.csv')
     
     # testnum = 1
@@ -146,7 +148,7 @@ if __name__ == '__main__':
         # if testnum > 10:
         #     break
         # 2.1初始化
-        chain_length = 3
+        chain_length = 2
         chain_count = 2
         harmful_prompt = item["goal"] # 获取goal字段的值
         # init_vector = [0.2,0.05,0.05,0,0,0,0,0.5,0,0.2] # 暂时手动设置
@@ -180,7 +182,7 @@ if __name__ == '__main__':
                 print("optimize_vector is: ", optimize_vector)
                 optimize_num = generate_number_by_probability(optimize_vector)
                 print("optimize_num is: ", optimize_num)
-                optimize_score,optimize_disguised_prompt,optimize_victim_response = select_optimize_method(failed_num,optimize_num,harmful_prompt,failed_disguised_prompt,attacker_pipe,attacker_tokenizer,victim_pipe,victim_tokenizer,"gpt",iter_num=1)
+                optimize_score,optimize_disguised_prompt,optimize_victim_response = select_optimize_method(failed_num,optimize_num,harmful_prompt,failed_disguised_prompt,attacker_pipe,attacker_tokenizer,victim_pipe,victim_tokenizer,"gpt",iter_num=2)
                 if optimize_score == 1.0:
                     item["best_score"] = optimize_score
                     item["best_disguised_prompt"] = optimize_disguised_prompt
@@ -204,6 +206,8 @@ if __name__ == '__main__':
         item["type"] = "markov"
         
     # print("Average Jailbreak Score: ", avg_jailbreak_score)
-    with open("../results/markov_test_literary.json", 'w') as file:
+    outputfile_name = 'markov_test_literary_2.json'
+
+    with open(f"../results/{outputfile_name}", 'w') as file:
         json.dump(demo_item_list, file, indent=4)     
     
