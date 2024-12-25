@@ -36,7 +36,7 @@ def get_prompts(file_name):
             data_list.append(item)
     return data_list
 
-def hypo_method(harmful_prompt,attacker_pipe,attacker_tokenizer,victim_pipe,victim_tokenizer,judgetype,iter_num=10):
+def hypo_method(harmful_prompt,attacker_pipe,attacker_tokenizer,victim_pipe,victim_tokenizer,judgetype,attacktype,iter_num=10):
     best_score = -0.1
     best_disguised_prompt = "xxx"
     best_victim_response = "xxx"
@@ -77,12 +77,25 @@ def hypo_method(harmful_prompt,attacker_pipe,attacker_tokenizer,victim_pipe,vict
         victim_messages = [
             {"role": "user", "content": disguised_prompt},
         ]
-        victim_response = victim_pipe(victim_messages)[0]['generated_text'][1]['content']
-        # API_SECRET_KEY= "sk-PPJYlzhmpoVs5tAGD5D190Cd09924f2cA777821bB0F882A7" # 填写我们给您的apikey
-        # BASE_URL = "https://api.ai-gaochao.cn/v1"
-        # gpt_client = OpenAI(api_key=API_SECRET_KEY, base_url=BASE_URL)
-        # victim_response = gpt_client.chat.completions.create(model="gpt-4o", messages=victim_messages, max_tokens=512)
-      
+        if attacktype == "local":
+            victim_response = victim_pipe(victim_messages)[0]['generated_text'][1]['content']
+        else :    
+            API_SECRET_KEY= "sk-wvdsTSCg4Edw5do22c734f65145349A99b48Ed06202cD59a" # 填写我们给您的apikey
+            BASE_URL = "https://api.ai-gaochao.cn/v1"
+            gpt_client = OpenAI(api_key=API_SECRET_KEY, base_url=BASE_URL)
+            victim_messages = [
+            {"role": "system", "content": "You are a helpful AI assistant."},
+            {"role": "user", "content": disguised_prompt},
+            ]
+            try:
+                victim_response = gpt_client.chat.completions.create(model=attacktype, messages=victim_messages, max_tokens=512).choices[0].message.content
+            except Exception as e:
+                print(f"Error: {e}")
+                victim_response = "api error"
+            finally:
+                import time
+                time.sleep(2)
+            
         if judgetype == "gpt":
             jailbreak_score = judge_gpt(victim_pipe, harmful_prompt, disguised_prompt, victim_response, victim_tokenizer)
         elif judgetype == "llama3":

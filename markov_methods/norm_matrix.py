@@ -33,6 +33,30 @@ def softmax_normalize(ratios):
     exp_ratios = np.exp(ratios)  # 对每个值取指数
     return exp_ratios / np.sum(exp_ratios)  # 归一化
 
+def softmax_normalize_with_temperature(ratios, temperature=1.0):
+    """
+    使用 Softmax 对比例进行归一化，并引入温度系数
+    参数:
+        ratios: 输入的一维列表或数组，表示需要归一化的比例
+        temperature: 温度系数，控制分布的平滑程度，默认为 1.0
+    返回:
+        归一化后的概率分布（以 NumPy 数组形式返回）
+    """
+    # 防止温度为零，避免除零错误
+    if temperature <= 0:
+        raise ValueError("Temperature must be greater than 0.")
+    
+    # 将输入的列表转换为 NumPy 数组（如果尚未是数组）
+    ratios = np.array(ratios)
+    
+    # 数值稳定性处理：减去最大值以避免指数计算时的溢出
+    # exp_ratios = np.exp((ratios - np.max(ratios)) / temperature)
+    exp_ratios = np.exp((ratios) / temperature) # 我们的数值小 不用担心溢出
+
+    
+    # 归一化
+    return exp_ratios / np.sum(exp_ratios)
+
 def sum_normalize(ratios):
     """
     使用加和占比进行归一化
@@ -73,7 +97,8 @@ def main():
         print(f"文件夹 {folder_name} 中的比例：{ratios}")
         # 使用 Softmax 进行归一化
         # normalized_ratios = softmax_normalize(ratios)
-        normalized_ratios = power_normalize(ratios)
+        # normalized_ratios = power_normalize(ratios)
+        normalized_ratios = softmax_normalize_with_temperature(ratios,temperature=0.1)
         # normalized_ratios = sum_normalize(ratios)
         all_normalized_ratios.append(normalized_ratios)
 
@@ -81,7 +106,7 @@ def main():
     matrix = np.array(all_normalized_ratios)
     # 格式化矩阵中每个数为三位小数
     matrix = np.round(matrix, decimals=3)
-    np.save("matrix.npy", matrix)
+    np.save("matrix_T_0.1.npy", matrix)
     print("矩阵已保存为 matrix.npy 文件")
 
     # 打印矩阵，保留三位小数
