@@ -99,15 +99,6 @@ Configure parameters in `markov_attack_api_dynamic.py`:
 - `init_qnum`: Initial method queries (default: 1)
 - `chain_qnum`: Optimization queries (default: 1)
 
-## Results
-
-| Model | ASR (%) | Avg Queries |
-|-------|---------|-------------|
-| GPT-4o | 85.2 | 12.3 |
-| Claude-3.5 | 78.6 | 14.1 |
-| Llama-3-70B | 92.4 | 10.7 |
-| Gemini-1.5-Pro | 81.3 | 13.5 |
-
 ## Citation
 
 ```bibtex
