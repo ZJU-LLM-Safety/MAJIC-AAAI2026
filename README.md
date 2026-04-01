@@ -111,10 +111,13 @@ Configure parameters in `markov_attack_api_dynamic.py`:
 ## Citation
 
 ```bibtex
-@inproceedings{majic2026,
-  title={MAJIC: MArkov Jailbreak with Iterative Camouflage},
-  author={Your Name},
+@inproceedings{qi2026majic,
+  title={Majic: Markovian adaptive jailbreaking via iterative composition of diverse innovative strategies},
+  author={Qi, Weiwei and Shao, Shuo and Gu, Wei and Zheng, Tianhang and Zhao, Puning and Qin, Zhan and Ren, Kui},
   booktitle={Proceedings of the AAAI Conference on Artificial Intelligence},
+  volume={40},
+  number={39},
+  pages={32755--32763},
   year={2026}
 }
 ```
@@ -129,4 +132,4 @@ This tool is for security research and red teaming only. Users are responsible f
 
 ## Contact
 
-For questions, please open an issue or contact the authors.
+For questions, please open an issue or contact: zjuqww@gmail.com
